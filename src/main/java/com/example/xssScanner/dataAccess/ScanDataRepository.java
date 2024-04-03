@@ -1,0 +1,16 @@
+package com.example.xssScanner.dataAccess;
+
+import com.example.xssScanner.model.Scan;
+import com.example.xssScanner.model.ScanData;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface ScanDataRepository extends JpaRepository<ScanData,Long>
+{
+
+
+}

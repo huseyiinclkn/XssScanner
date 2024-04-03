@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div id="scan">
+    <h1>XSS Scanner</h1>
+
+    <form id="scanForm">
+        <label for="scanName"> Taramanın İsmini Giriniz</label><br>
+        <input type="text" id="scanName" name="scanName"><br><br>
+        <button type="button" id="saveScanNameButton">Tarama İsmini Kaydet</button><br><br>
+        <label for="urlInput">URL Giriniz</label><br>
+        <input type="text" id="urlInput" name="url"><br><br>
+        <button type="submit"><b>Scan</b></button><br>
+    </form><br>
+    <select id="severityFilter">
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+    </select>
+    <button id="filterButton">Filter</button>
+</div>
+
+<div id="result"></div><br/><br/>
+<div id="resultContainer"></div>
+<div id ="resultFilter"></div>
+
+<script>
+    document.getElementById("saveScanNameButton").addEventListener("click", function (event) {
+        event.preventDefault();
+
+        let scanName = document.getElementById("scanName").value;
+
+        fetch('/addScanName?scanName=' + encodeURIComponent(scanName), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ scanName: scanName })
+        })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Bir hata oluştu, tarama ismi güncellenemedi.");
+            });
+    });
+
+    document.getElementById("scanForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        let url = document.getElementById("urlInput").value;
+
+        fetch('/test?url=' + url, { method: 'POST' })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("result").innerHTML = data;
+            })
+
+    });
+
+
+    document.getElementById("filterButton").addEventListener("click", function () {
+        let exampleElement = document.getElementById("result");
+        let url = document.getElementById("urlInput").value;
+        let severity = document.getElementById("severityFilter").value;
+        let encodedUrl = encodeURIComponent(exampleElement.innerHTML);
+        encodedUrl = encodedUrl.replace(/\//g, "%2F");
+
+        fetch('/scan/' + encodedUrl + '?severity=' + severity)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("resultContainer").innerText = data;
+            })
+
+    });
+
+
+</script>
+</body>
+</html>
