@@ -1,6 +1,5 @@
     package com.example.xssScanner.model;
 
-    import com.fasterxml.jackson.annotation.JsonManagedReference;
     import jakarta.persistence.*;
     import lombok.Getter;
     import lombok.NoArgsConstructor;
@@ -34,11 +33,15 @@
         private Timestamp scanStartTime;
 
         @Column(name = "scanEndTime")
+
         private Timestamp scanEndTime;
 
-
-        @OneToMany(mappedBy = "scan")
-
+        @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+        @JoinTable(
+                name = "lookup_scan_scan_data_relation",
+                joinColumns = {@JoinColumn(name = "scan_id", referencedColumnName = "id")},
+                inverseJoinColumns = {@JoinColumn(name = "scan_data_id", referencedColumnName = "id")}
+        )
         private List<ScanData> data;
 
     }

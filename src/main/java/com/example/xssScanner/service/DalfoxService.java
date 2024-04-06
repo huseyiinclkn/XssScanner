@@ -15,6 +15,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class DalfoxService {
@@ -51,7 +53,7 @@ public class DalfoxService {
                 .block();
     }
 
-    public String getScanResult(String msg, String severity) throws JsonProcessingException {
+    public String getScanResult(String msg) throws JsonProcessingException {
         String scanUrl = "/scan/" + msg;
 
 
@@ -71,19 +73,34 @@ public class DalfoxService {
 
             if (scanResult.getMsg().equals("finish")) {
                 if (scanResult.getData() != null && !scanResult.getData().isEmpty()) {
-                    for (ScanData data : scanResult.getData()) {
-                        if (severity.equals(data.getSeverity())) {
-                            scan.setScanEndTime(new Timestamp(System.currentTimeMillis()));
-                            addScan(scan);
-                            scanDataRepository.save(data);
-                            return data.getMessage_str();
-                        }
-                    }
+                    scan.setData(scanResult.getData());
+                    scan.setScanEndTime(new Timestamp(System.currentTimeMillis()));
+                    addScan(scan);
+
+
+
+
                 }
-                return "Veri bulunamadı";
+                return "Tarama Kaydedildi.";
             }
 
             return "Tarama Henüz Tamamlanmadı.....";
 
         }
+    public List<String> getFilteredScanIndexes(String severity) {
+        List<String> filteredIndexes = new ArrayList<>();
+        List<Scan> scanList = scanRepository.getScansWithFilter(severity);
+
+        int index = 1;
+        for (Scan scan : scanList) {
+            for (ScanData scanData : scan.getData()) {
+                if (scanData.getSeverity().equalsIgnoreCase(severity)) {
+                    filteredIndexes.add(index++ + " - " + scan.getId());
+                    break; // Birden fazla aynı severity değeri varsa, sadece bir kez eklemek için break kullanıyoruz.
+                }
+            }
+        }
+
+        return filteredIndexes;
+    }
 }

@@ -22,10 +22,6 @@ public class ScanData {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long  id;
 
-    @ManyToOne
-    @JoinColumn(name = "scan_id")
-    private Scan scan;
-
     @Column(name = "type")
     private String type;
     @Column(name="inject_type")

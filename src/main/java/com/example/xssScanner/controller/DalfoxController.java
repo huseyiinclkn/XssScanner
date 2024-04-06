@@ -52,15 +52,21 @@ public class DalfoxController {
 
     @GetMapping("/scan/{msg}")
     @ResponseBody
-    public ResponseEntity<String> getScanResult(@PathVariable(value = "msg") String msg, @RequestParam(value = "severity", required = false) String severity) throws IOException {
+    public ResponseEntity<String> getScanResult(@PathVariable(value = "msg") String msg) throws IOException {
         JSONObject jsonObject = new JSONObject(msg);
         String msgValue = jsonObject.getString("msg");
-        if (severity == null || severity.isEmpty()) {
-            severity = "High";
-        }
 
-        String scanResult = dalfoxService.getScanResult(msgValue, severity);
+        String scanResult = dalfoxService.getScanResult(msgValue);
 
         return ResponseEntity.ok().body(scanResult);
     }
+
+
+    @PostMapping("/filter")
+    public ResponseEntity<String> filter(@RequestParam(value = "severity") String severity) {
+        String filterResult = dalfoxService.getFilteredScanIndexes(severity).toString();
+        return ResponseEntity.ok().body(filterResult);
+    }
+
+
 }
